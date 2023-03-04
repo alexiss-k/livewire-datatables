@@ -1920,7 +1920,6 @@ class LivewireDatatable extends Component
 
     private function setVisibleSelected()
     {
-        $result = $this->getQuery()->get()->pluck('checkbox_attribute')->toArray();
         $this->visibleSelected = array_intersect($this->getQuery()->get()->pluck('checkbox_attribute')->toArray(), $this->selected);
         $this->visibleSelected = array_map('strval', $this->visibleSelected);
     }
