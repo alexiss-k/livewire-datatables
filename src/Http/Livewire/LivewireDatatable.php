@@ -1309,9 +1309,9 @@ class LivewireDatatable extends Component
                                     $query->whereNotNull($column);
                                 } elseif ($this->columns[$rule['content']['column']]['type'] === 'boolean') {
                                     if ($rule['content']['value'] === 'true') {
-                                        $query->whereNotNull(Str::contains($column, '(') ? DB::raw($column) : $column);
+                                        $query->whereNotNull(Str::contains($column, '(') ? DB::connection()->getQueryGrammar()->getValue(DB::raw($column)) : $column);
                                     } else {
-                                        $query->whereNull(Str::contains($column, '(') ? DB::raw($column) : $column);
+                                        $query->whereNull(Str::contains($column, '(') ? DB::connection()->getQueryGrammar()->getValue(DB::raw($column)) : $column);
                                     }
                                 } else {
                                     $col = (isset($this->freshColumns[$rule['content']['column']]['round']) && $this->freshColumns[$rule['content']['column']]['round'] !== null)
@@ -1439,7 +1439,7 @@ class LivewireDatatable extends Component
                             ->where($this->getColumnFilterStatement($index)[0], '<>', '');
                     } elseif (strlen($value)) {
                         $query->where(function ($query) use ($index) {
-                            $query->whereNull(DB::raw($this->getColumnFilterStatement($index)[0]))
+                            $query->whereNull(DB::connection()->getQueryGrammar()->getValue(DB::raw($this->getColumnFilterStatement($index)[0])))
                                 ->orWhere(DB::raw($this->getColumnFilterStatement($index)[0]), '');
                         });
                     }
@@ -1447,7 +1447,8 @@ class LivewireDatatable extends Component
                     $query->where(DB::raw($this->getColumnFilterStatement($index)[0]), '>', 0);
                 } elseif (strlen($value)) {
                     $query->where(function ($query) use ($index) {
-                        $query->whereNull(DB::raw($this->getColumnFilterStatement($index)[0]))
+                        // Weird fix for whereNull statement not accepting expression
+                        $query->whereNull(DB::connection()->getQueryGrammar()->getValue(DB::raw($this->getColumnFilterStatement($index)[0])))
                             ->orWhere(DB::raw($this->getColumnFilterStatement($index)[0]), 0);
                     });
                 }
@@ -1656,9 +1657,15 @@ class LivewireDatatable extends Component
 
     public function getDisplayValue($index, $value)
     {
-        return is_array($this->freshColumns[$index]['filterable']) && is_numeric($value)
-            ? collect($this->freshColumns[$index]['filterable'])->firstWhere('id', '=', $value)['name'] ?? $value
-            : $value;
+        if (is_array($this->freshColumns[$index]['filterable']) && is_numeric($value)) {
+            return collect($this->freshColumns[$index]['filterable'])->firstWhere('id', '=', $value)['name'] ?? $value;
+        }
+
+        if (is_array($this->freshColumns[$index]['filterable']) && array_key_exists($value, $this->freshColumns[$index]['filterable'])) {
+            return $this->freshColumns[$index]['filterable'][$value];
+        }
+
+        return $value;
     }
 
     /*  This can be called to apply highlighting of the search term to some string.
@@ -1913,6 +1920,7 @@ class LivewireDatatable extends Component
 
     private function setVisibleSelected()
     {
+        $result = $this->getQuery()->get()->pluck('checkbox_attribute')->toArray();
         $this->visibleSelected = array_intersect($this->getQuery()->get()->pluck('checkbox_attribute')->toArray(), $this->selected);
         $this->visibleSelected = array_map('strval', $this->visibleSelected);
     }
