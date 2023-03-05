@@ -1657,12 +1657,12 @@ class LivewireDatatable extends Component
 
     public function getDisplayValue($index, $value)
     {
-        if (is_array($this->freshColumns[$index]['filterable']) && is_numeric($value)) {
-            return collect($this->freshColumns[$index]['filterable'])->firstWhere('id', '=', $value)['name'] ?? $value;
-        }
-
         if (is_array($this->freshColumns[$index]['filterable']) && array_key_exists($value, $this->freshColumns[$index]['filterable'])) {
             return $this->freshColumns[$index]['filterable'][$value];
+        }
+
+        if (is_array($this->freshColumns[$index]['filterable']) && is_numeric($value)) {
+            return collect($this->freshColumns[$index]['filterable'])->firstWhere('id', '=', $value)['name'] ?? $value;
         }
 
         return $value;
