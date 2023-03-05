@@ -1348,8 +1348,15 @@ class LivewireDatatable extends Component
             foreach (explode(' ', $this->search) as $search) {
                 $query->where(function ($query) use ($search) {
                     $this->searchableColumns()->each(function ($column, $i) use ($query, $search) {
-                        $query->orWhere(function ($query) use ($i, $search) {
-                            foreach ($this->getColumnFilterStatement($i) as $column) {
+                        $searchClosure = $column['searchClosure'];
+                        $query->orWhere(function ($query) use ($i, $search, $searchClosure) {
+                            $columnFilterStatement = $this->getColumnFilterStatement($i);
+                            if (! empty($searchClosure) && count($columnFilterStatement) === 1 && ! is_array($columnFilterStatement[0])) {
+                                $searchClosure($query, $columnFilterStatement[0], $search);
+                                return;
+                            }
+
+                            foreach ($columnFilterStatement as $column) {
                                 $query->when(is_array($column), function ($query) use ($search, $column) {
                                     foreach ($column as $col) {
                                         $query->orWhereRaw('LOWER(' . (Str::contains(mb_strtolower($column), 'concat') ? '' : $this->tablePrefix) . $col . ') like ?', '%' . mb_strtolower($search) . '%');
