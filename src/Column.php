@@ -19,6 +19,7 @@ class Column
     public $base;
     public $raw;
     public $searchable;
+    public $searchClosure;
     public $sortable;
     public $filterOn;
     public $filterable;
@@ -242,9 +243,10 @@ class Column
         return $this;
     }
 
-    public function searchable()
+    public function searchable(Closure $closure = null)
     {
         $this->searchable = true;
+        $this->searchClosure = $closure;
 
         return $this;
     }
