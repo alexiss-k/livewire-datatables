@@ -22,4 +22,10 @@ class DateColumn extends Column
 
         return $this;
     }
+
+    public function dateFormatInternal($format)
+    {
+        $this->dateFormatInternal = $format;
+        return $this;
+    }
 }
