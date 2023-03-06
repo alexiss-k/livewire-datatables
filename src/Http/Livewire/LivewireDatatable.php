@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -1533,9 +1534,10 @@ class LivewireDatatable extends Component
                 if (! ((isset($filter['start']) && $filter['start'] != '') || (isset($filter['end']) && $filter['end'] != ''))) {
                     break;
                 }
+                $internalDateFormat = $this->freshColumns[$index]['dateFormatInternal'] ?? 'Y-m-d';
                 $query->whereBetween($this->getColumnFilterStatement($index)[0], [
-                    isset($filter['start']) && $filter['start'] != '' ? $filter['start'] : config('livewire-datatables.default_time_start', '0000-00-00'),
-                    isset($filter['end']) && $filter['end'] != '' ? $filter['end'] : config('livewire-datatables.default_time_end', '9999-12-31'),
+                    isset($filter['start']) && $filter['start'] != '' ? Date::parse($filter['start'])->format($internalDateFormat) : config('livewire-datatables.default_time_start', '0000-00-00'),
+                    isset($filter['end']) && $filter['end'] != '' ? Date::parse($filter['end'])->format($internalDateFormat) : config('livewire-datatables.default_time_end', '9999-12-31'),
                 ]);
             }
         });
