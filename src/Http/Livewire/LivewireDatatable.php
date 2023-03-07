@@ -2,6 +2,7 @@
 
 namespace Mediconesystems\LivewireDatatables\Http\Livewire;
 
+use Carbon\CarbonTimeZone;
 use Exception;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -1556,9 +1557,10 @@ class LivewireDatatable extends Component
                 if (! ((isset($filter['start']) && $filter['start'] != '') || (isset($filter['end']) && $filter['end'] != ''))) {
                     break;
                 }
+                $internalDatetimeFormat = $this->freshColumns[$index]['datetimeFormatInternal'] ?? 'Y-m-d\TH:i';
                 $query->whereBetween($this->getColumnFilterStatement($index)[0], [
-                    isset($filter['start']) && $filter['start'] != '' ? $filter['start'] : config('livewire-datatables.default_time_start', '0000-00-00 00:00'),
-                    isset($filter['end']) && $filter['end'] != '' ? $filter['end'] : config('livewire-datatables.default_time_end', '9999-12-31 23:59'),
+                    Date::parse(isset($filter['start']) && $filter['start'] != '' ? $filter['start'] : config('livewire-datatables.default_time_start', '0000-00-00 00:00'), new CarbonTimeZone('Europe/Kyiv'))->format($internalDatetimeFormat),
+                    Date::parse(isset($filter['end']) && $filter['end'] != '' ? $filter['end'] : config('livewire-datatables.default_time_end', '9999-12-31 23:59'), new CarbonTimeZone('Europe/Kyiv'))->format($internalDatetimeFormat),
                 ]);
             }
         });
