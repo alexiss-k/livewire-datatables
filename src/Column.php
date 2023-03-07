@@ -41,6 +41,7 @@ class Column
     public $maxWidth;
     public $exportCallback;
     public $dateFormatInternal;
+    public $datetimeFormatInternal;
 
     /**
      * @var bool should the sum of all summarizable cells in this column be
