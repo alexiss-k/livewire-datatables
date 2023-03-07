@@ -1559,8 +1559,8 @@ class LivewireDatatable extends Component
                 }
                 $internalDatetimeFormat = $this->freshColumns[$index]['datetimeFormatInternal'] ?? 'Y-m-d\TH:i';
                 $query->whereBetween($this->getColumnFilterStatement($index)[0], [
-                    Date::parse(isset($filter['start']) && $filter['start'] != '' ? $filter['start'] : config('livewire-datatables.default_time_start', '0000-00-00 00:00'), new CarbonTimeZone('Europe/Kyiv'))->format($internalDatetimeFormat),
-                    Date::parse(isset($filter['end']) && $filter['end'] != '' ? $filter['end'] : config('livewire-datatables.default_time_end', '9999-12-31 23:59'), new CarbonTimeZone('Europe/Kyiv'))->format($internalDatetimeFormat),
+                    Date::parse(isset($filter['start']) && $filter['start'] != '' ? $filter['start'] : config('livewire-datatables.default_time_start', '0000-00-00 00:00'), new CarbonTimeZone(config('app.timezone')))->format($internalDatetimeFormat),
+                    Date::parse(isset($filter['end']) && $filter['end'] != '' ? $filter['end'] : config('livewire-datatables.default_time_end', '9999-12-31 23:59'), new CarbonTimeZone(config('app.timezone')))->format($internalDatetimeFormat),
                 ]);
             }
         });
