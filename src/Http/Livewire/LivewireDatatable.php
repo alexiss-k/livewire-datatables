@@ -923,7 +923,14 @@ class LivewireDatatable extends Component
 
     public function doDateFilterStart($index, $start)
     {
-        $this->activeDateFilters[$index]['start'] = $start;
+        if (empty($start)) {
+            unset($this->activeDateFilters[$index]['start']);
+            if (empty($this->activeDateFilters[$index])) {
+                unset($this->activeDateFilters[$index]);
+            }
+        } else {
+            $this->activeDateFilters[$index]['start'] = $start;
+        }
         $this->setVisibleSelected();
         $this->setPage(1);
         $this->setSessionStoredFilters();
@@ -931,7 +938,14 @@ class LivewireDatatable extends Component
 
     public function doDateFilterEnd($index, $end)
     {
-        $this->activeDateFilters[$index]['end'] = $end;
+        if (empty($end)) {
+            unset($this->activeDateFilters[$index]['end']);
+            if (empty($this->activeDateFilters[$index])) {
+                unset($this->activeDateFilters[$index]);
+            }
+        } else {
+            $this->activeDateFilters[$index]['end'] = $end;
+        }
         $this->setVisibleSelected();
         $this->setPage(1);
         $this->setSessionStoredFilters();
@@ -939,7 +953,14 @@ class LivewireDatatable extends Component
 
     public function doDatetimeFilterStart($index, $start)
     {
-        $this->activeDatetimeFilters[$index]['start'] = $start;
+        if (empty($start)) {
+            unset($this->activeDatetimeFilters[$index]['start']);
+            if (empty($this->activeDatetimeFilters[$index])) {
+                unset($this->activeDatetimeFilters[$index]);
+            }
+        } else {
+            $this->activeDatetimeFilters[$index]['start'] = $start;
+        }
         $this->setVisibleSelected();
         $this->setPage(1);
         $this->setSessionStoredFilters();
@@ -947,7 +968,14 @@ class LivewireDatatable extends Component
 
     public function doDatetimeFilterEnd($index, $end)
     {
-        $this->activeDatetimeFilters[$index]['end'] = $end;
+        if (empty($end)) {
+            unset($this->activeDatetimeFilters[$index]['end']);
+            if (empty($this->activeDatetimeFilters[$index])) {
+                unset($this->activeDatetimeFilters[$index]);
+            }
+        } else {
+            $this->activeDatetimeFilters[$index]['end'] = $end;
+        }
         $this->setVisibleSelected();
         $this->setPage(1);
         $this->setSessionStoredFilters();
@@ -955,7 +983,14 @@ class LivewireDatatable extends Component
 
     public function doTimeFilterStart($index, $start)
     {
-        $this->activeTimeFilters[$index]['start'] = $start;
+        if (empty($start)) {
+            unset($this->activeTimeFilters[$index]['start']);
+            if (empty($this->activeTimeFilters[$index])) {
+                unset($this->activeTimeFilters[$index]);
+            }
+        } else {
+            $this->activeTimeFilters[$index]['start'] = $start;
+        }
         $this->setVisibleSelected();
         $this->setPage(1);
         $this->setSessionStoredFilters();
@@ -963,7 +998,14 @@ class LivewireDatatable extends Component
 
     public function doTimeFilterEnd($index, $end)
     {
-        $this->activeTimeFilters[$index]['end'] = $end;
+        if (empty($end)) {
+            unset($this->activeTimeFilters[$index]['end']);
+            if (empty($this->activeTimeFilters[$index])) {
+                unset($this->activeTimeFilters[$index]);
+            }
+        } else {
+            $this->activeTimeFilters[$index]['end'] = $end;
+        }
         $this->setVisibleSelected();
         $this->setPage(1);
         $this->setSessionStoredFilters();
