@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\Expression;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,7 @@ class LivewireDatatable extends Component
     use WithPagination, WithCallbacks, WithPresetDateFilters, WithPresetTimeFilters;
 
     const SEPARATOR = '|**lwdt**|';
+    private Request $request;
     public $model;
     public $columns;
     public $search;
@@ -229,6 +231,7 @@ class LivewireDatatable extends Component
     }
 
     public function mount(
+        Request $request = null,
         $model = false,
         $include = [],
         $exclude = [],
@@ -247,6 +250,7 @@ class LivewireDatatable extends Component
         $afterTableSlot = false,
         $params = []
     ) {
+        $this->request = $request;
         foreach ([
             'model',
             'include',
@@ -694,7 +698,9 @@ class LivewireDatatable extends Component
             $this->activeNumberFilters = $filters['number'];
         }
 
-        if (isset($filters['search'])) {
+        if (! empty($this->request->input('search'))) {
+            $this->search = $this->request->input('search');
+        } elseif (isset($filters['search'])) {
             $this->search = $filters['search'];
         }
     }
