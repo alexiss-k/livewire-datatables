@@ -295,6 +295,7 @@ class LivewireDatatable extends Component
         if ($this->persistSearch) {
             session()->put($this->sessionStorageKey() . '_search', $this->search);
         }
+        $this->dispatchBrowserEvent('initSelectSearch');
 
         return parent::dehydrate(); // @phpstan-ignore-line
     }
@@ -1459,15 +1460,21 @@ class LivewireDatatable extends Component
                                         }
                                     });
                                 } else {
-                                    $query->orWhere(function ($query) use ($value, $index) {
+                                    if (! empty($this->freshColumns[$index]['filterNullable']) && $value === 'null') {
                                         foreach ($this->getColumnFilterStatement($index) as $column) {
-                                            if (Str::contains(mb_strtolower($column), 'concat')) {
-                                                $query->orWhereRaw('LOWER(' . $this->tablePrefix . $column . ') like ?', [mb_strtolower("%$value%")]);
-                                            } else {
-                                                $query->orWhereRaw($column . ' = ?', $value);
-                                            }
+                                            $query->orWhereNull($this->tablePrefix . $column);
                                         }
-                                    });
+                                    } else {
+                                        $query->orWhere(function ($query) use ($value, $index) {
+                                            foreach ($this->getColumnFilterStatement($index) as $column) {
+                                                if (Str::contains(mb_strtolower($column), 'concat')) {
+                                                    $query->orWhereRaw('LOWER(' . $this->tablePrefix . $column . ') like ?', [mb_strtolower("%$value%")]);
+                                                } else {
+                                                    $query->orWhereRaw($column . ' = ?', $value);
+                                                }
+                                            }
+                                        });
+                                    }
                                 }
                             }
                         }
@@ -1716,6 +1723,10 @@ class LivewireDatatable extends Component
 
     public function getDisplayValue($index, $value)
     {
+        if (! empty($this->freshColumns[$index]['filterNullable']) && $value === 'null') {
+            return $this->freshColumns[$index]['filterNullable'];
+        }
+
         if (is_array($this->freshColumns[$index]['filterable']) && array_key_exists($value, $this->freshColumns[$index]['filterable'])) {
             return $this->freshColumns[$index]['filterable'][$value];
         }
@@ -1725,6 +1736,16 @@ class LivewireDatatable extends Component
         }
 
         return $value;
+    }
+
+    public function isSearchableFilter($index)
+    {
+        return $this->freshColumns[$index]['filterSearchable'];
+    }
+
+    public function getNullableFilter($index)
+    {
+        return $this->freshColumns[$index]['filterNullable'] ?? null;
     }
 
     /*  This can be called to apply highlighting of the search term to some string.

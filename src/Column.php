@@ -22,7 +22,9 @@ class Column
     public $searchClosure;
     public $sortable;
     public $filterOn;
+    public $filterNullable;
     public $filterable;
+    public $filterSearchable = false;
     public $hideable;
     public $sort;
     public $defaultSort;
@@ -264,6 +266,20 @@ class Column
     public function filterOn($query)
     {
         $this->filterOn = $query;
+
+        return $this;
+    }
+
+    public function filterNullable($optionText)
+    {
+        $this->filterNullable = $optionText;
+
+        return $this;
+    }
+
+    public function filterSearchable()
+    {
+        $this->filterSearchable = true;
 
         return $this;
     }
