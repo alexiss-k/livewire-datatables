@@ -91,6 +91,7 @@ class LivewireDatatable extends Component
     protected $query;
     protected $listeners = [
         'refreshLivewireDatatable',
+        'refreshLivewireDatatableNoPageChange',
         'complexQuery',
         'saveQuery',
         'deleteQuery',
@@ -793,6 +794,11 @@ class LivewireDatatable extends Component
     public function refreshLivewireDatatable()
     {
         $this->setPage(1);
+    }
+
+    public function refreshLivewireDatatableNoPageChange()
+    {
+        $this->setPage($this->page);
     }
 
     /**
