@@ -47,7 +47,7 @@ class ColumnTest extends TestCase
         $this->assertEquals($value, $subject->$attribute);
     }
 
-    public function settersDataProvider()
+    public static function settersDataProvider()
     {
         return [
             ['label', 'Bob Vance', 'label'],

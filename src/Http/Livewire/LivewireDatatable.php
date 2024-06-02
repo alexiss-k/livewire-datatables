@@ -147,9 +147,9 @@ class LivewireDatatable extends Component
 
     /**
      * This events allows to control the options of the datatable from foreign livewire components
-     * by using $emit.
+     * by using $dispatch.
      *
-     * @example $this->emit('applyToTable', ['perPage' => 25]); // in any other livewire component on the same page
+     * @example $this->dispatch('applyToTable', ['perPage' => 25]); // in any other livewire component on the same page
      */
     public function applyToTable($options)
     {
@@ -296,7 +296,7 @@ class LivewireDatatable extends Component
         if ($this->persistSearch) {
             session()->put($this->sessionStorageKey() . '_search', $this->search);
         }
-        $this->dispatchBrowserEvent('initSelectSearch');
+        $this->dispatch('initSelectSearch');
 
         return parent::dehydrate(); // @phpstan-ignore-line
     }
@@ -736,6 +736,10 @@ class LivewireDatatable extends Component
                 return Str::before($column['select'][0], ' AS ');
                 break;
 
+            case is_object($column['select']):
+                return Str::before($column['select']->getValue(DB::connection()->getQueryGrammar()), ' AS ');
+                break;
+
             case $column['select']:
                 return Str::before($column['select'], ' AS ');
                 break;
@@ -798,7 +802,7 @@ class LivewireDatatable extends Component
 
     public function refreshLivewireDatatableNoPageChange()
     {
-        $this->setPage($this->page);
+        $this->setPage($this->getPage());
     }
 
     /**
@@ -1077,7 +1081,7 @@ class LivewireDatatable extends Component
         $this->setPage(1);
         $this->setSessionStoredFilters();
 
-        $this->emitTo('complex-query', 'resetQuery');
+        $this->dispatch('resetQuery')->to('complex-query');
     }
 
     public function removeBooleanFilter($column)
@@ -1416,10 +1420,13 @@ class LivewireDatatable extends Component
                             foreach ($columnFilterStatement as $column) {
                                 $query->when(is_array($column), function ($query) use ($search, $column) {
                                     foreach ($column as $col) {
-                                        $query->orWhereRaw('LOWER(' . (Str::contains(mb_strtolower($column), 'concat') ? '' : $this->tablePrefix) . $col . ') like ?', '%' . mb_strtolower($search) . '%');
+                                        $query->orWhereRaw('LOWER(' . (Str::contains(mb_strtolower($column->getValue(DB::connection()->getQueryGrammar())), 'concat') ? '' : $this->tablePrefix) . $col . ') like ?', '%' . mb_strtolower($search) . '%');
                                     }
                                 }, function ($query) use ($search, $column) {
-                                    $query->orWhereRaw('LOWER(' . (Str::contains(mb_strtolower($column), 'concat') ? '' : $this->tablePrefix) . $column . ') like ?', '%' . mb_strtolower($search) . '%');
+                                    $stringColumn = is_string($column)
+                                        ? $column
+                                        : $column->getValue(DB::connection()->getQueryGrammar());
+                                    $query->orWhereRaw('LOWER(' . (Str::contains(mb_strtolower($stringColumn), 'concat') ? '' : $this->tablePrefix) . $stringColumn . ') like ?', '%' . mb_strtolower($search) . '%');
                                 });
                             }
                         });
@@ -1544,7 +1551,10 @@ class LivewireDatatable extends Component
                             $query->orWhere(function ($query) use ($index, $value) {
                                 foreach ($this->getColumnFilterStatement($index) as $column) {
                                     $column = is_array($column) ? $column[0] : $column;
-                                    $query->orWhereRaw('LOWER(' . $this->tablePrefix . $column . ') like ?', [mb_strtolower("%$value%")]);
+                                    $columnString = is_string($column)
+                                        ? $column
+                                        : $column->getValue(DB::connection()->getQueryGrammar());
+                                    $query->orWhereRaw('LOWER(' . $this->tablePrefix . $columnString . ') like ?', [mb_strtolower("%$value%")]);
                                 }
                             });
                         }
@@ -1805,7 +1815,7 @@ class LivewireDatatable extends Component
 
     public function render()
     {
-        $this->emit('refreshDynamic');
+        $this->dispatch('refreshDynamic');
 
         if ($this->persistPerPage) {
             session()->put([$this->sessionStorageKey() . '_perpage' => $this->perPage]);

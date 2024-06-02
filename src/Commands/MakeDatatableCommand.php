@@ -3,10 +3,9 @@
 namespace Mediconesystems\LivewireDatatables\Commands;
 
 use Illuminate\Support\Facades\File;
-use Livewire\Commands\FileManipulationCommand;
-use Livewire\LivewireComponentsFinder;
+use Livewire\Features\SupportConsoleCommands\Commands\FileManipulationCommand as CommandsFileManipulationCommand;
 
-class MakeDatatableCommand extends FileManipulationCommand
+class MakeDatatableCommand extends CommandsFileManipulationCommand
 {
     protected $signature = 'make:livewire-datatable {name} {--model=}';
 
@@ -29,7 +28,7 @@ class MakeDatatableCommand extends FileManipulationCommand
 
         $class = $this->createClass();
 
-        $this->refreshComponentAutodiscovery();
+        //$this->refreshComponentAutodiscovery();
 
         $this->line("<options=bold,reverse;fg=green> COMPONENT CREATED </> 🤙\n");
         $class && $this->line("<options=bold;fg=green>CLASS:</> {$this->parser->relativeClassPath()}");
@@ -55,7 +54,7 @@ class MakeDatatableCommand extends FileManipulationCommand
 
     public function refreshComponentAutodiscovery()
     {
-        app(LivewireComponentsFinder::class)->build();
+        //app(LivewireComponentsFinder::class)->build();
     }
 
     public function isReservedClassName($name)

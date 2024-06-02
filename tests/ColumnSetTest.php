@@ -41,7 +41,7 @@ class ColumnSetTest extends TestCase
         $this->assertNull($subject[$index]->hidden);
     }
 
-    public function fieldDataProvider()
+    public static function fieldDataProvider()
     {
         return [
             ['Subject', 0, 'subject'],
